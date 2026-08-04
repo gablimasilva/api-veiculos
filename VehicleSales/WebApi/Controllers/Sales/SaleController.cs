@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests.Sale;
+using Application.Exceptions;
 
 namespace WebApi.Controllers;
 
@@ -17,7 +18,7 @@ public sealed class SaleController : ControllerBase
     {
         var buyerId =
             User.FindFirst("sub")?.Value
-            ?? throw new UnauthorizedAccessException();
+            ?? throw new UnauthorizedException("User not authenticated.");
 
         var sale = await useCase.Purchase(
             buyerId,

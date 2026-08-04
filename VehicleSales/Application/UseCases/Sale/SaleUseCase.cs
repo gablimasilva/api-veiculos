@@ -1,7 +1,6 @@
-﻿using Application.UseCases.Sale;
+﻿using Application.Exceptions;
 using Application.Requests.Sale;
 using Domain.Enums;
-using Domain.Models;
 using Domain.Repositories;
 
 namespace Application.UseCases.Sale;
@@ -26,10 +25,10 @@ public sealed class SaleUseCase : ISaleUseCase
         var vehicle = await _vehicleRepository.Get(request.VehicleId);
 
         if (vehicle is null)
-            throw new KeyNotFoundException("Vehicle not found.");
+            throw new NotFoundException("Vehicle not found.");
 
         if (vehicle.Status == VehicleStatus.Sold)
-            throw new InvalidOperationException("Vehicle already sold.");
+            throw new BusinessException("Vehicle already sold.");
 
         var sale = new Domain.Models.Sale
         {

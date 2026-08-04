@@ -4,10 +4,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Extensions;
 using WebApi.Handlers;
+using Application;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddApplication();
+
+builder.Services.AddInfrastructure(
+    builder.Configuration);
 
 builder.Services.AddProjectDependencies(
     builder.Configuration);
@@ -50,6 +57,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerDocumentation();
 }
+
+app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
 

@@ -1,6 +1,7 @@
 ﻿using Application.Requests.Vehicle;
 using Domain.Repositories;
 using Domain.Enums;
+using Application.Exceptions;
 
 namespace Application.UseCases.Vehicle
 {
@@ -54,8 +55,7 @@ namespace Application.UseCases.Vehicle
             var vehicle = await _repository.Get(id);
 
             if (vehicle is null)
-                throw new KeyNotFoundException(
-                    "Vehicle not found.");
+                throw new NotFoundException("Vehicle not found.");
 
             if (!string.IsNullOrWhiteSpace(request.Brand))
                 vehicle.Brand = request.Brand;
