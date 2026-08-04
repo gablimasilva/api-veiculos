@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests.Sale;
-using Application.Exceptions;
 
 namespace WebApi.Controllers;
 
@@ -10,19 +9,13 @@ namespace WebApi.Controllers;
 [Route("v1/[controller]")]
 public sealed class SaleController : ControllerBase
 {
-    [HttpPost]
     [Authorize]
+    [HttpPost]
     public async Task<IActionResult> Purchase(
-        [FromServices] ISaleUseCase useCase,
-        [FromBody] PurchaseVehicleRequest request)
+    [FromServices] ISaleUseCase useCase,
+    [FromBody] PurchaseVehicleRequest request)
     {
-        var buyerId =
-            User.FindFirst("sub")?.Value
-            ?? throw new UnauthorizedException("User not authenticated.");
-
-        var sale = await useCase.Purchase(
-            buyerId,
-            request);
+        var sale = await useCase.Purchase(request);
 
         return Ok(sale);
     }

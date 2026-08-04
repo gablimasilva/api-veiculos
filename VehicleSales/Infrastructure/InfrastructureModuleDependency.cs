@@ -1,6 +1,8 @@
-﻿using Domain.Repositories;
+﻿using Application.Services;
+using Domain.Repositories;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +23,9 @@ public static class InfrastructureModuleDependency
 
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<ISaleRepository, SaleRepository>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<IApplicationUser, ApplicationUser>();
 
         return services;
     }

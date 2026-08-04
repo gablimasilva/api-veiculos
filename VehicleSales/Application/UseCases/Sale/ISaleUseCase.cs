@@ -5,7 +5,5 @@ namespace Application.UseCases.Sale;
 
 public interface ISaleUseCase
 {
-    Task<Domain.Models.Sale> Purchase(
-        string buyerId,
-        PurchaseVehicleRequest request);
+    Task<Domain.Models.Sale> Purchase(PurchaseVehicleRequest request);
 }

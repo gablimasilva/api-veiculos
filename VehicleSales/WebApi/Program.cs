@@ -1,11 +1,11 @@
+using Application;
+using Infrastructure;
 using Infrastructure.Persistence.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Extensions;
 using WebApi.Handlers;
-using Application;
-using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,32 +16,38 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(
     builder.Configuration);
 
-builder.Services.AddProjectDependencies(
-    builder.Configuration);
-
 builder.Services.AddSwaggerDocumentation();
 
 builder.Services.AddApiHealthChecks(
     builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddAuthentication("Dev")
+    builder.Services
+        .AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = "Dev";
+            options.DefaultChallengeScheme = "Dev";
+        })
         .AddScheme<AuthenticationSchemeOptions, DevAuthenticationHandler>(
             "Dev",
             null);
 }
 else
 {
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    builder.Services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            // Cognito
+            options.Authority =
+                builder.Configuration["Authentication:Authority"];
+
+            options.Audience =
+                builder.Configuration["Authentication:Audience"];
         });
 }
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -61,6 +67,8 @@ if (app.Environment.IsDevelopment())
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

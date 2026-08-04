@@ -1,5 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Requests.Sale;
+using Application.Services;
 using Domain.Enums;
 using Domain.Repositories;
 
@@ -9,19 +10,21 @@ public sealed class SaleUseCase : ISaleUseCase
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IVehicleRepository _vehicleRepository;
+    private readonly IApplicationUser _applicationUser;
 
     public SaleUseCase(
         ISaleRepository saleRepository,
-        IVehicleRepository vehicleRepository)
+        IVehicleRepository vehicleRepository,
+        IApplicationUser applicationUser)
     {
         _saleRepository = saleRepository;
         _vehicleRepository = vehicleRepository;
+        _applicationUser = applicationUser;
     }
 
-    public async Task<Domain.Models.Sale> Purchase(
-        string buyerId,
-        PurchaseVehicleRequest request)
+    public async Task<Domain.Models.Sale> Purchase(PurchaseVehicleRequest request)
     {
+        var buyerId = _applicationUser.UserId;
         var vehicle = await _vehicleRepository.Get(request.VehicleId);
 
         if (vehicle is null)
