@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: vehicle-sales-api
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: vehicle-sales-api
+
+  template:
+    metadata:
+      labels:
+        app: vehicle-sales-api
+
+    spec:
+      containers:
+
+        - name: vehicle-sales-api
+
+          image: SEU_USUARIO_DOCKER/vehicle-sales-api:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
