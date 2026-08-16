@@ -4,9 +4,14 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore
+WORKDIR /src/VehicleSales
 
-RUN dotnet publish WebApi/WebApi.csproj -c Release -o /app/publish
+RUN dotnet restore VehicleSales.slnx
+
+RUN dotnet publish WebApi/WebApi.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 
