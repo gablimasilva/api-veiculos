@@ -31,3 +31,21 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Production
+
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: vehicle-sales-secrets
+                  key: ConnectionStrings__DefaultConnection
+
+            - name: Authentication__Authority
+              valueFrom:
+                secretKeyRef:
+                  name: vehicle-sales-secrets
+                  key: Authentication__Authority
+
+            - name: Authentication__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: vehicle-sales-secrets
+                  key: Authentication__Audience
