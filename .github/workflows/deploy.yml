@@ -1,43 +1,44 @@
-name: docker
+name: deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - docker
+    types:
+      - completed
 
 jobs:
 
-  docker:
+  deploy:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          dotnet-version: "10.0.x"
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --no-restore
-
-      - name: Test
-        run: dotnet test --no-build
-
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build Image
+      - name: Configure kubeconfig
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/vehicle-sales-api:latest .
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME }}
 
-      - name: Push Image
+      - name: Deploy Application
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/vehicle-sales-api:latest
+          kubectl apply -f kubernetes/
+
+      - name: Check Rollout
+        run: |
+          kubectl rollout status deployment/vehicle-sales-api

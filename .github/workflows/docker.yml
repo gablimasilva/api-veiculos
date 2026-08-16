@@ -1,35 +1,51 @@
-name: deploy
+name: docker
 
 on:
-  workflow_run:
-    workflows:
-      - docker
-
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
 
-  deploy:
+  docker:
 
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: VehicleSales
 
     steps:
 
       - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          dotnet-version: "10.0.x"
 
-      - name: Configure Kubectl
-        run: |
-          aws eks update-kubeconfig \
-          --name ${{ secrets.EKS_CLUSTER_NAME }}
+      - name: Restore
+        run: dotnet restore VehicleSales.sln
 
-      - name: Deploy Application
+      - name: Build
+        run: dotnet build VehicleSales.sln --no-restore
+
+      - name: Test
+        run: dotnet test VehicleSales.sln --no-build
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build Image
         run: |
-          kubectl apply -f kubernetes/
+          docker build \
+          -t ${{ secrets.DOCKER_USERNAME }}/vehicle-sales-api:latest \
+          -f ../Dockerfile \
+          ..
+
+      - name: Push Image
+        run: |
+          docker push \
+          ${{ secrets.DOCKER_USERNAME }}/vehicle-sales-api:latest
