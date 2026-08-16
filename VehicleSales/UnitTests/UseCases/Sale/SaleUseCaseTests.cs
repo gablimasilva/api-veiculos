@@ -1,5 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Requests.Sale;
+using Application.Services;
 using Application.UseCases.Sale;
 using Domain.Enums;
 using Domain.Repositories;
@@ -14,6 +15,8 @@ public class SaleUseCaseTests
 
     private readonly Mock<IVehicleRepository> _vehicleRepository;
 
+    private readonly Mock<IApplicationUser> _applicationUser;
+
     private readonly SaleUseCase _useCase;
 
     public SaleUseCaseTests()
@@ -22,9 +25,16 @@ public class SaleUseCaseTests
 
         _vehicleRepository = new Mock<IVehicleRepository>();
 
+        _applicationUser = new Mock<IApplicationUser>();
+
+        _applicationUser
+            .Setup(x => x.UserId)
+            .Returns("LOCAL-TEST");
+
         _useCase = new SaleUseCase(
             _saleRepository.Object,
-            _vehicleRepository.Object);
+            _vehicleRepository.Object,
+            _applicationUser.Object);
     }
 
     [Fact]
@@ -46,11 +56,11 @@ public class SaleUseCaseTests
             VehicleId = vehicleId
         };
 
-        var sale = await _useCase.Purchase(
-            "LOCAL-TEST",
-            request);
+        var sale = await _useCase.Purchase(request);
 
         sale.VehicleId.Should().Be(vehicleId);
+
+        sale.BuyerId.Should().Be("LOCAL-TEST");
 
         _saleRepository.Verify(
             x => x.Create(It.IsAny<Domain.Models.Sale>()),
@@ -76,9 +86,7 @@ public class SaleUseCaseTests
         };
 
         var action = async () =>
-            await _useCase.Purchase(
-                "LOCAL-TEST",
-                request);
+            await _useCase.Purchase(request);
 
         await action
             .Should()
@@ -104,9 +112,7 @@ public class SaleUseCaseTests
         };
 
         var action = async () =>
-            await _useCase.Purchase(
-                "LOCAL-TEST",
-                request);
+            await _useCase.Purchase(request);
 
         await action
             .Should()
