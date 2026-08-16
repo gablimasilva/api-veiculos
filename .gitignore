@@ -1,0 +1,67 @@
+# Visual Studio
+.vs/
+
+# Build
+[Bb]in/
+[Oo]bj/
+
+# User files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Publish
+publish/
+
+# Test Results
+TestResults/
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+coverage-report/
+
+# NuGet
+*.nupkg
+packages/
+
+# EF temporary files
+*.dbmdl
+
+# Docker
+docker-data/
+
+# Environment files
+.env
+.env.*
+
+# Application secrets
+appsettings.Local.json
+appsettings.Secrets.json
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Generated certificates
+*.pfx
+*.pem
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Kubernetes
+*.kubeconfig
