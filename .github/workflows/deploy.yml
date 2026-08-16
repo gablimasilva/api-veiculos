@@ -35,6 +35,14 @@ jobs:
           aws eks update-kubeconfig \
             --name ${{ secrets.EKS_CLUSTER_NAME }}
 
+      - name: Create Kubernetes Secrets
+        run: |
+          kubectl create secret generic vehicle-sales-secrets \
+            --from-literal=ConnectionStrings__DefaultConnection="Host=${{ secrets.DB_HOST }};Port=${{ secrets.DB_PORT }};Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USERNAME }};Password=${{ secrets.DB_PASSWORD }}" \
+            --from-literal=Authentication__Authority="${{ secrets.COGNITO_AUTHORITY }}" \
+            --from-literal=Authentication__Audience="${{ secrets.COGNITO_AUDIENCE }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy Application
         run: |
           kubectl apply -f kubernetes/
